@@ -1,10 +1,18 @@
-#!/usr/bin/swift
 import Foundation
 
 @main
 struct PreFixItTool {
     
-    public func run() throws {
+    static func main() throws {
+        do {
+            try PreFixItTool().run()
+        } catch {
+            print("Unable to run PreFixIt. \(error.localizedDescription)")
+            exit(1)
+        }
+    }
+    
+    func run() throws {
         guard let branchName = getBranchName() else {
             print("PreFixIt failed to get branch name. Please ensure branch name is setup")
             exit(1)
