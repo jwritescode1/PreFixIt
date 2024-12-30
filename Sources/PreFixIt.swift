@@ -18,24 +18,36 @@ struct PreFixItTool {
             exit(1)
         }
         
-        guard let commitMessage = readLine(), !commitMessage.isEmpty else {
+        guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
             print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
             exit(1)
         }
         
-        prefixCommitMessage(with: branchName, existingMessage: commitMessage)
+        if lastCommitMessage.contains("[\(branchName)]") {
+            print("No task to be done by PreFixIt, commit message already is prefixed with current branch name")
+            return
+        } else {
+            print("PreFixIt updating commit message")
+            updateCommitMessage(with: branchName, existingMessage: lastCommitMessage)
+        }
     }
 }
 
 private extension PreFixItTool {
     
     func getBranchName() -> String? {
+        print("Getting current branch name")
         return runShell("git rev-parse --abbrev-ref HEAD")
     }
     
-    func prefixCommitMessage(with branchName: String, existingMessage: String) {
-        let prefixMessage = "[\(branchName)] \(existingMessage)"
-        let commitCommand = "git commit -m \"\(prefixMessage)\""
+    func getLastCommitMessage() -> String? {
+        print("Getting last commit message")
+        return runShell("git log -1 --pretty=%B")
+    }
+    
+    func updateCommitMessage(with branchName: String, existingMessage: String) {
+        let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
+        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
         
         if runShell(commitCommand) != nil {
             print("PreFixIt successfully update commit message")
