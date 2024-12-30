@@ -18,7 +18,7 @@ struct PreFixItTool {
             exit(1)
         }
         
-        guard let commitMessage = readLine(), commitMessage.isEmpty else {
+        guard let commitMessage = readLine(), !commitMessage.isEmpty else {
             print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
             exit(1)
         }
@@ -63,7 +63,7 @@ private extension PreFixItTool {
             try process.run()
             process.waitUntilExit()
         } catch {
-            return ("Command: \(command) encountered error. Error: \(error.localizedDescription)")
+            print("Command: \(command) encountered error. Error: \(error.localizedDescription)")
             exit(1)
         }
         
