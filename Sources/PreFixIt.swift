@@ -1,7 +1,11 @@
 import Foundation
+import ArgumentParser
 
 @main
-struct PreFixItTool {
+struct PreFixItTool: ParsableCommand {
+
+    @Option(help: "Set to true to only prefix the last commit with the currrent branch name.")
+    var shouldOnlyApplyToLastCommit: Bool
     
     static func main() throws {
         do {
@@ -18,17 +22,23 @@ struct PreFixItTool {
             exit(1)
         }
         
-        guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
-            print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
-            exit(1)
-        }
-        
-        if lastCommitMessage.contains("[\(branchName)]") {
-            print("No task to be done by PreFixIt, commit message already is prefixed with current branch name")
-            return
-        } else {
-            print("PreFixIt updating commit message")
+        if shouldOnlyApplyToLastCommit {
+            guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
+                print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
+                exit(1)
+            }
+            print("PreFixIt updating last commit message")
             updateCommitMessage(with: branchName, existingMessage: lastCommitMessage)
+        } else {
+            let allCommitMessages = getAllCommitMessages()
+            guard !allCommitMessages.isEmpty else {
+                print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
+            }
+            
+            print("PreFixIt updating commit messages")
+            for commitMessage in allCommitMessages {
+                updateCommitMessage(with: branchName, existingMessage: commitMessage)
+            }
         }
     }
 }
@@ -57,11 +67,16 @@ private extension PreFixItTool {
     }
     
     func updateCommitMessage(with branchName: String, existingMessage: String) {
+        guard !existingMessage.contains("[\(branchName)]") else {
+            print("Skipping this commit as it already has branch name specified")
+            return
+        }
+        
         let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
         let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
         
         if runShell(commitCommand) != nil {
-            print("PreFixIt successfully update commit message")
+            print("PreFixIt successfully update commit message to \(updatedCommitMessage)")
         } else {
             print("Hmmm...sorry. PreFixIt failed to commit. Please ensure Git is working appropriately")
         }
