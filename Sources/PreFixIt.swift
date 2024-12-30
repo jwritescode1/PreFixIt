@@ -45,6 +45,17 @@ private extension PreFixItTool {
         return runShell("git log -1 --pretty=%B")
     }
     
+    func getAllCommitMessages() -> [String] {
+        print("Getting all commit messages of current branch")
+        
+        guard let commitMessage = runShell("git log --pretty=%B") else {
+            print("Failed to retrieve commit messages")
+            exit(1)
+        }
+        
+        return commitMessage.split(separator: "\n").map { String($0) }
+    }
+    
     func updateCommitMessage(with branchName: String, existingMessage: String) {
         let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
         let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
