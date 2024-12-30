@@ -4,30 +4,27 @@ import ArgumentParser
 @main
 struct PreFixItTool: ParsableCommand {
 
-    @Option(help: "Set to true to only prefix the last commit with the currrent branch name.")
-    var shouldOnlyApplyToLastCommit: Bool
+    @Flag var shouldOnlyApplyToLastCommit: Bool = false
+    @Flag var verbose: Bool = true
     
     static func main() throws {
         do {
             try PreFixItTool().run()
         } catch {
             print("Unable to run PreFixIt. \(error.localizedDescription)")
-            exit(1)
         }
     }
     
     func run() throws {
         guard let branchName = getBranchName() else {
             print("PreFixIt failed to get branch name. Please ensure branch name is setup")
-            exit(1)
         }
         
         if shouldOnlyApplyToLastCommit {
             guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
                 print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
-                exit(1)
             }
-            print("PreFixIt updating last commit message")
+            printProgressIfNeeded("PreFixIt updating last commit message")
             updateCommitMessage(with: branchName, existingMessage: lastCommitMessage)
         } else {
             let allCommitMessages = getAllCommitMessages()
@@ -35,7 +32,7 @@ struct PreFixItTool: ParsableCommand {
                 print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
             }
             
-            print("PreFixIt updating commit messages")
+            printProgressIfNeeded("PreFixIt updating commit messages")
             for commitMessage in allCommitMessages {
                 updateCommitMessage(with: branchName, existingMessage: commitMessage)
             }
@@ -46,21 +43,20 @@ struct PreFixItTool: ParsableCommand {
 private extension PreFixItTool {
     
     func getBranchName() -> String? {
-        print("Getting current branch name")
+        printProgressIfNeeded("Getting current branch name")
         return runShell("git rev-parse --abbrev-ref HEAD")
     }
     
     func getLastCommitMessage() -> String? {
-        print("Getting last commit message")
+        printProgressIfNeeded("Getting last commit message")
         return runShell("git log -1 --pretty=%B")
     }
     
     func getAllCommitMessages() -> [String] {
-        print("Getting all commit messages of current branch")
+        printProgressIfNeeded("Getting all commit messages of current branch")
         
         guard let commitMessage = runShell("git log --pretty=%B") else {
             print("Failed to retrieve commit messages")
-            exit(1)
         }
         
         return commitMessage.split(separator: "\n").map { String($0) }
@@ -76,9 +72,9 @@ private extension PreFixItTool {
         let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
         
         if runShell(commitCommand) != nil {
-            print("PreFixIt successfully update commit message to \(updatedCommitMessage)")
+            printProgressIfNeeded("PreFixIt successfully update commit message to \(updatedCommitMessage)")
         } else {
-            print("Hmmm...sorry. PreFixIt failed to commit. Please ensure Git is working appropriately")
+            printProgressIfNeeded("Hmmm...sorry. PreFixIt failed to commit. Please ensure Git is working appropriately")
         }
     }
     
@@ -102,7 +98,6 @@ private extension PreFixItTool {
             process.waitUntilExit()
         } catch {
             print("Command: \(command) encountered error. Error: \(error.localizedDescription)")
-            exit(1)
         }
         
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
@@ -110,8 +105,12 @@ private extension PreFixItTool {
         if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
             return output
         } else {
-            print("Output is nil")
-            exit(1)
+            printProgressIfNeeded("Output is nil")
         }
+    }
+    
+    func printProgressIfNeeded(_ message: String) {
+        guard verbose else { return }
+        print(message)
     }
 }
