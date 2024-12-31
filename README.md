@@ -24,16 +24,16 @@ cp .build/release/PreFixIt /usr/local/bin/PreFixIt
 
 # Usage
 
-To run `PreFixIt`:
+To run `PreFixIt` in a Git repository:
 
 ```
-swift run PreFixIt
+PreFixIt
 ``` 
 
 or pass in `-v` to get helpful logs
 
 ```
-swift run PreFixIt -v
+PreFixIt -v
 ```
 
 # Recommended
