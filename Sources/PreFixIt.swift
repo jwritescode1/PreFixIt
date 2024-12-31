@@ -90,7 +90,7 @@ private extension PreFixIt {
         }
         
         let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
-        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
+        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\" --no-edit"
         
         if runShell(commitCommand) != nil {
             printProgressIfNeeded("PreFixIt successfully update commit message to \(updatedCommitMessage)")
