@@ -8,18 +8,42 @@ struct PreFixIt: ParsableCommand {
     var verbose: Bool = false
     
     func run() throws {
+        printProgressIfNeeded("PreFixIt running...")
+        
         guard let branchName = getBranchName() else {
-            print("PreFixIt failed to get branch name. Please ensure branch name is setup")
+            print("PreFixIt was not able to retrieve branch name")
             return
         }
         
-        guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
-            print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
+        guard CommandLine.arguments.count > 1 else {
+            print("PreFixIt failed. There was no commit message file path provided")
             return
         }
         
-        printProgressIfNeeded("PreFixIt updating last commit message")
-        updateCommitMessage(with: branchName, existingMessage: lastCommitMessage)
+        printProgressIfNeeded("PreFixIt searching for commit message file path")
+        
+        let commitMessageFilePath = CommandLine.arguments[1]
+        guard let currentMessage = try? String(contentsOfFile: commitMessageFilePath, encoding: .utf8) else {
+            print("PreFixIt failed. Unable to read the commit message from the file")
+            return
+        }
+
+        guard !currentMessage.contains("[\(branchName)]") else {
+            printProgressIfNeeded("No update required for commit message as it already contains [\(branchName)]")
+            return
+        }
+        
+        printProgressIfNeeded("PreFixIt successfully encoded commit message")
+        
+        do {
+            printProgressIfNeeded("PreFixIt updating commit message")
+            let updatedMessage = "[\(branchName)] \(currentMessage)"
+            try updatedMessage.write(toFile: commitMessageFilePath, atomically: true, encoding: .utf8)
+            print("PreFixIt successfully updated the commit message to: \(updatedMessage)")
+        } catch {
+            print("PreFixIt failed. Unable to write commit to file. Error: \(error.localizedDescription)")
+        }
+    
     }
 }
 
@@ -30,27 +54,6 @@ private extension PreFixIt {
     func getBranchName() -> String? {
         printProgressIfNeeded("Getting current branch name")
         return runShell("git rev-parse --abbrev-ref HEAD")
-    }
-    
-    func getLastCommitMessage() -> String? {
-        printProgressIfNeeded("Getting last commit message")
-        return runShell("git log -1 --pretty=%B")
-    }
-    
-    func updateCommitMessage(with branchName: String, existingMessage: String) {
-        guard !existingMessage.contains("[\(branchName)]") else {
-            printProgressIfNeeded("No update required for \(existingMessage) commit")
-            return
-        }
-        
-        let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
-        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
-        
-        if runShell(commitCommand) != nil {
-            printProgressIfNeeded("PreFixIt successfully update commit message to \(updatedCommitMessage)")
-        } else {
-            printProgressIfNeeded("Hmmm...sorry. PreFixIt failed to commit. Please ensure Git is working appropriately")
-        }
     }
     
     func runShell(_ command: String) -> String? {
