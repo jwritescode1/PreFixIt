@@ -5,7 +5,7 @@ import ArgumentParser
 struct PreFixItTool: ParsableCommand {
 
     @Flag var shouldOnlyApplyToLastCommit: Bool = false
-    @Flag var verbose: Bool = true
+    @Flag var verbose: Bool = false
     
     static func main() throws {
         do {
