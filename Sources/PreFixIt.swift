@@ -39,12 +39,12 @@ private extension PreFixIt {
     
     func updateCommitMessage(with branchName: String, existingMessage: String) {
         guard !existingMessage.contains("[\(branchName)]") else {
-            print("Skipping this commit as it already has branch name specified")
+            printProgressIfNeeded("No update required for \(existingMessage) commit")
             return
         }
         
         let updatedCommitMessage = "[\(branchName)] \(existingMessage)"
-        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\" --no-edit"
+        let commitCommand = "git commit --amend -m \"\(updatedCommitMessage)\""
         
         if runShell(commitCommand) != nil {
             printProgressIfNeeded("PreFixIt successfully update commit message to \(updatedCommitMessage)")
