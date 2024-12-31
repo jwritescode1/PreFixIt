@@ -2,18 +2,21 @@ import Foundation
 import ArgumentParser
 
 @main
-struct PreFixItTool: ParsableCommand {
+struct PreFixIt: ParsableCommand {
 
-    @Flag var shouldOnlyApplyToLastCommit: Bool = false
-    @Flag var verbose: Bool = false
-    
-    static func main() throws {
-        do {
-            try PreFixItTool().run()
-        } catch {
-            print("Unable to run PreFixIt. \(error.localizedDescription)")
-        }
-    }
+    @Flag(name: [.customLong("last")], help: "Apply only to the last commit")
+    var shouldOnlyApplyToLastCommit: Bool = false
+
+    @Flag(name: [.long, .customShort("v")], help: "Display logs for debugging purposes")
+    var verbose: Bool = false
+//
+//    static func main() throws {
+//        do {
+//            try PreFixIt().run()
+//        } catch {
+//            print("Unable to run PreFixIt. \(error.localizedDescription)")
+//        }
+//    }
     
     func run() throws {
         guard let branchName = getBranchName() else {
@@ -43,7 +46,9 @@ struct PreFixItTool: ParsableCommand {
     }
 }
 
-private extension PreFixItTool {
+// MARK: - Private
+
+private extension PreFixIt {
     
     func getBranchName() -> String? {
         printProgressIfNeeded("Getting current branch name")
