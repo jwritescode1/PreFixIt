@@ -18,11 +18,13 @@ struct PreFixItTool: ParsableCommand {
     func run() throws {
         guard let branchName = getBranchName() else {
             print("PreFixIt failed to get branch name. Please ensure branch name is setup")
+            return
         }
         
         if shouldOnlyApplyToLastCommit {
             guard let lastCommitMessage = getLastCommitMessage(), !lastCommitMessage.isEmpty else {
                 print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
+                return
             }
             printProgressIfNeeded("PreFixIt updating last commit message")
             updateCommitMessage(with: branchName, existingMessage: lastCommitMessage)
@@ -30,6 +32,7 @@ struct PreFixItTool: ParsableCommand {
             let allCommitMessages = getAllCommitMessages()
             guard !allCommitMessages.isEmpty else {
                 print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
+                return
             }
             
             printProgressIfNeeded("PreFixIt updating commit messages")
@@ -57,6 +60,7 @@ private extension PreFixItTool {
         
         guard let commitMessage = runShell("git log --pretty=%B") else {
             print("Failed to retrieve commit messages")
+            return []
         }
         
         return commitMessage.split(separator: "\n").map { String($0) }
@@ -105,7 +109,8 @@ private extension PreFixItTool {
         if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
             return output
         } else {
-            printProgressIfNeeded("Output is nil")
+            print("Output is nil")
+            return nil
         }
     }
     
