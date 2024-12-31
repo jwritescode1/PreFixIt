@@ -29,11 +29,9 @@ struct PreFixIt: ParsableCommand {
                 print("PreFixIt needs a commit message. Currently commit message seems to be nil or empty")
                 return
             }
-            
+        
             printProgressIfNeeded("PreFixIt updating commit messages")
-            for commitMessage in allCommitMessages {
-                updateCommitMessage(with: branchName, existingMessage: commitMessage)
-            }
+            updateAllCommitMessages(with: branchName, commitMessages: allCommitMessages)
         }
     }
 }
@@ -61,6 +59,28 @@ private extension PreFixIt {
         }
         
         return commitMessage.split(separator: "\n").map { String($0) }
+    }
+    
+    func updateAllCommitMessages(with branchName: String, commitMessages: [String]) {
+        printProgressIfNeeded("Starting rebase interactive mode")
+        
+        let rebaseCommand = "git rebase -i --root"
+        guard runShell(rebaseCommand) != nil else {
+            print("Hmmm....PreFixIt failed to rebase. Please ensure Git is up and running appropriately")
+            return
+        }
+        
+        for commitMessage in commitMessages {
+            updateCommitMessage(with: branchName, existingMessage: commitMessage)
+        }
+        
+        let rebaseContinueCommand = "git rebase --continue"
+        guard runShell(rebaseContinueCommand) != nil else {
+            printProgressIfNeeded("PreFixIt failed to complete rebase operation. Sorry, please help resolve the conflicts and manually")
+            return
+        }
+        
+        printProgressIfNeeded("Successfully rebased commits with branch name as its prefix")
     }
     
     func updateCommitMessage(with branchName: String, existingMessage: String) {
