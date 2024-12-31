@@ -7,16 +7,8 @@ struct PreFixIt: ParsableCommand {
     @Flag(name: [.customLong("last")], help: "Apply only to the last commit")
     var shouldOnlyApplyToLastCommit: Bool = false
 
-    @Flag(name: [.long, .customShort("v")], help: "Display logs for debugging purposes")
+    @Flag(name: .long, help: "Display logs for debugging purposes")
     var verbose: Bool = false
-//
-//    static func main() throws {
-//        do {
-//            try PreFixIt().run()
-//        } catch {
-//            print("Unable to run PreFixIt. \(error.localizedDescription)")
-//        }
-//    }
     
     func run() throws {
         guard let branchName = getBranchName() else {
