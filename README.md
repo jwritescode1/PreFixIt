@@ -1,5 +1,6 @@
 # PreFixIt
-A lightweight Swift CLI tool that automatically prefix your Git commit messages with the current branch name. This helps ensures your commit messages are consistent and descriptive, especially when working in teams or feature branches.
+A lightweight Swift-based CLI tool that automatically prefixes your Git commit messages with the current branch name. This ensures better traceability of commits by associating them with their respective branches.
+
 
 # Installation
 
@@ -16,7 +17,7 @@ cd PreFixIt
 swift build -c release
 ```
 
-3. Move the executable to your PATH. This should allow you to run `PreFixIt` in your Terminal
+3. Copy the executable to your PATH. This should allow you to run `PreFixIt` in your Terminal
 
 ```
 cp .build/release/PreFixIt /usr/local/bin/PreFixIt
@@ -24,23 +25,9 @@ cp .build/release/PreFixIt /usr/local/bin/PreFixIt
 
 # Usage
 
-To run `PreFixIt` in a Git repository:
+**PreFixIt** was designed in my mind to work along side with Git hook. This would allow the PreFixIt to run whenever you make a commit automatically. To setup per repository:
 
-```
-PreFixIt
-``` 
-
-or pass in `-v` to get helpful logs
-
-```
-PreFixIt -v
-```
-
-# Recommended
-
-Though not required, it would be helpful to run automated this tool as part of Git hook. This would allow the PreFixIt to run whenever you make a commit. Below are some helpful steps to guide you in your setup per repository:
-
-1. Navigate to your repository:
+1. Navigate to your project repository:
 
 ```
 cd /path/to/your/git/repository
@@ -56,16 +43,31 @@ nano .git/hooks/prepare-commit-msg
 
 ```
 #!/bin/sh
-exec PreFixIt
+exec PreFixIt "$1"
 ```
 
-4. Save and exit to make the file executable:
+If you prefer to see the logs when PreFixIt gets to work, add the following content instead:
+
+```
+#!/bin/sh
+exec PreFixIt -v "$1"
+```
+
+4. Save and exit:
+
+4a. Ctrl + O
+
+4b. Enter
+
+4c. Ctrl + X
+
+5. Provide permission to ensure the file is executable:
 
 ```
 chmod +x .git/hooks/prepare-commit-msg
 ```
 
-`PreFixIt` should now automatically be able to prefix your commit messages in this repo with your current branch name.
+**PreFixIt** should now automatically be able to prefix your commit messages with your current branch name.
 
 # License
 
