@@ -7,6 +7,9 @@ struct PreFixIt: ParsableCommand {
     @Flag(name: .short, help: "Display logs for debugging purposes")
     var verbose: Bool = false
     
+    @Argument(help: "Path to the commit message file")
+    var commitMessageFilePath: String?
+    
     func run() throws {
         printProgressIfNeeded("PreFixIt running...")
         
@@ -15,14 +18,15 @@ struct PreFixIt: ParsableCommand {
             return
         }
         
-        guard CommandLine.arguments.count > 1 else {
-            print("PreFixIt failed. There was no commit message file path provided")
+        printProgressIfNeeded("PreFixIt searching for commit message file path")
+
+        guard let commitMessageFilePath = commitMessageFilePath else {
+            print("PreFixIt failed. No commit message file path provided.")
             return
         }
         
-        printProgressIfNeeded("PreFixIt searching for commit message file path")
+        printProgressIfNeeded("PreFixIt encoding contents of commit message")
         
-        let commitMessageFilePath = CommandLine.arguments[1]
         guard let currentMessage = try? String(contentsOfFile: commitMessageFilePath, encoding: .utf8) else {
             print("PreFixIt failed. Unable to read the commit message from the file")
             return
