@@ -63,3 +63,8 @@ chmod +x .git/hooks/prepare-commit-msg
 
 Once the setup is done, you should be able to commit as per normal and **PreFixIt** would automatically be able to prefix your commit messages with your current branch name.
 
+https://github.com/user-attachments/assets/749763b6-84f5-4a08-ba0b-95a94a6e4197
+
+
+
+
