@@ -25,7 +25,7 @@ cp .build/release/PreFixIt /usr/local/bin/PreFixIt
 
 # Git Hook setup
 
-**PreFixIt** was designed in mind to work with Git hook. This would allow the PreFixIt to run whenever you make a commit automatically. To setup per repository:
+**PreFixIt** was designed in mind to work with Git hook. This would allow the PreFixIt to run whenever you make a commit automatically. You can either set the steps below in your centralised git hook or per repository. For simplicity, below are the steps required to setup per repository:
 
 1. Navigate to your project repository:
 
@@ -61,7 +61,7 @@ exec PreFixIt -v "$1"
 chmod +x .git/hooks/prepare-commit-msg
 ```
 
-Once the setup is done, you should be able to commit as per normal and **PreFixIt** would automatically be able to prefix your commit messages with your current branch name.
+Once the setup is done, you should be able to commit as per normal and **PreFixIt** would automatically be able to prefix your commit messages with your current branch name. 
 
 https://github.com/user-attachments/assets/49564925-6d1b-4a83-a12c-3f2887fb8a48
 
