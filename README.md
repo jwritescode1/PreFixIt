@@ -1,6 +1,7 @@
 # PreFixIt
 A lightweight Swift-based CLI tool that automatically prefixes your Git commit messages with the current branch name. This ensures better traceability of commits by associating them with their respective branches.
 
+https://github.com/user-attachments/assets/49564925-6d1b-4a83-a12c-3f2887fb8a48
 
 # Installation
 
@@ -62,10 +63,3 @@ chmod +x .git/hooks/prepare-commit-msg
 ```
 
 Once the setup is done, you should be able to commit as per normal and **PreFixIt** would automatically be able to prefix your commit messages with your current branch name. 
-
-https://github.com/user-attachments/assets/49564925-6d1b-4a83-a12c-3f2887fb8a48
-
-
-
-
-
